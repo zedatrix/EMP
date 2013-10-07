@@ -4,7 +4,7 @@
  *
  * @Name emp.php
  *
- * @author Eitan
+ * @author Zeddicus
  *
  * @Version 3.0.0
  *
