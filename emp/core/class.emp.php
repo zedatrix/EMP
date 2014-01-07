@@ -1,182 +1,96 @@
-<?php  if ( ! defined('FRAMEWORK')) exit('No direct script access allowed');
+<?php if ( ! defined('FRAMEWORK')) exit('No direct script access allowed');
 
-class Html {
-	public $_Config=array();
+/*********************************************************
+*	Class for Controlling the EMP Framework
+*
+* 	@Name	class.emp.php
+* 	@author Eitan
+*
+* 	@Version 1.2
+*********************************************************/
+
+ class Emp{
+ 		
+ 	public $_Config;
+    public $Return;
+    public $PM;
+
+/*************************************************
+* 	@name constructor
+* @desc sets up the initial classes & scripts for the framework
+**************************************************/
 	function __construct(){}
-/*************************************************
-* Text Input Field
-*
-* @access	public
-* @param	mixed
-* @param	string
-* @param	string
-* @return	string
-**************************************************/
-	function input_box($data = '', $value = '', $extra = ''){
-		if(is_array($data)){
-			if(strlen($data['id'])>0) $defaults = array('type'=>'text','id' => $data['id'], 'name'=> $data['id'], 'value'=>$data['value']);
-		}else{
-			$defaults = array('type' => 'text', 'id' => (( ! is_array($data)) ? $data : ''),'name' => (( ! is_array($data)) ? $data : ''), 'value' => $this->form_prep($value));
-		}
-		return "<input ".$this->parse_attribs($defaults).$extra." />";
-	}
 
 /*************************************************
-* alias for input_box
+* 	@name construct
+* @desc Custom construct for the class
 **************************************************/
-	function text_box($data = '', $value = '', $extra = ''){
-		return $this->input_box($data, $value, $extra);
-	}
+     function Construct(){}
 
 /*************************************************
-* Hidden Input Field
-*
-* Generates hidden fields.  You can pass a simple key/value string or an associative
-* array with multiple values.
-*
-* @access	public
-* @param	mixed
-* @param	string
-* @return	string
+* 	@name index
+* @desc default location if no function name was provided
 **************************************************/
-    function hidden_box($data = '', $value = '', $extra = ''){
-        if(is_array($data)){
-            if(strlen($data['id'])>0) $defaults = array('type'=>'hidden','id' => $data['id'], 'name'=> $data['id'], 'value'=>$data['value']);
-        }else{
-            $defaults = array('type' => 'hidden', 'id' => (( ! is_array($data)) ? $data : ''),'name' => (( ! is_array($data)) ? $data : ''), 'value' => $this->form_prep($value));
-        }
-        return "<input ".$this->parse_attribs($defaults).$extra." />";
-    }
+    function index(){}
 
 /*************************************************
-* Textarea field
-*
-* @access	public
-* @param	mixed
-* @param	string
-* @param	string
-* @return	string
+* 	@name load classes
+* @desc loads the classes for the framework
 **************************************************/
-		function textarea_box($data = '', $value = '', $extra = ''){
-		if(is_array($data)){
-			if(strlen($data['id'])>0) $defaults = array('id' => $data['id'], 'name'=> $data['id'],'cols' => '30', 'rows' => '5');
-		}else{
-			$defaults = array('id' => (( ! is_array($data)) ? $data : ''),'name'=> (( ! is_array($data)) ? $data : ''), 'cols' => '30', 'rows' => '5');
-		}
-		if( ! is_array($data) OR ! isset($data['value']))	{
-			$val = $value;
-		}else	{
-			$val = $data['value'];
-			unset($data['value']); // textareas don't use the value attribute
-		}
-		$name = (is_array($data)) ? $data['id'] : $data;
-		return "<textarea ".$this->parse_attribs($defaults).$extra.">".$this->form_prep($val, $name)."</textarea>";
+	 function load_classes(){
+	 	if(is_dir(CORE_PATH)){
+	 		if($dh=opendir(CORE_PATH)){
+	 			while(($file=readdir($dh)) !== FALSE){
+						try{
+							if(substr($file,-4)==EXT){
+								$class=explode(".", $file);
+								if($class[0]!='class') continue;
+								$class=ucfirst($class[1]);
+								if($class != 'Emp'){
+                                    $tmpClass= new $class();
+									$this->$class = $tmpClass;
+									$this->$class->_Config=array_merge($this->_Config);
+								}
+							}
+							
+						}catch(Exception $e){
+							//do nothing
+						}
+	 			}
+	 		}
+	 	}
 	}
+	 
 /*************************************************
-* Form Label Tag
-*
-* @access	public
-* @param	string	The text to appear onscreen
-* @param	string	The id the label applies to
-* @param	string	Additional attributes
-* @return	string
+* 	@name load config
+* @desc loads the configuration files for the specific controller
 **************************************************/
-		function label($data = '', $value ='',$attributes = array()){
-        $label = '<label';
-        if( ! is_array($data)){
-            if($data != '') $label .= " for=\"$data\"";
-            if(is_array($attributes) AND count($attributes) > 0){
-                foreach($attributes as $key => $val){
-                    $label .= ' '.$key.'="'.$val.'"';
-                }
-            }
-            $label .= ">$value</label>";
-        }elseif(is_array($data)){
-            $label .= (isset($data['id']) && $data['id']!='')?" for='".$data['id']."'":"";
-            if(is_array($attributes) AND count($attributes) > 0){
-                foreach($attributes as $key => $val){
-                    $label .= ' '.$key.'="'.$val.'"';
-                }
-            }elseif(isset($data['attribs']) && count($data['attribs'])>0){
-                foreach($data['attribs'] as $k => $v){
-                    $label .= ' '.$k.'="'.$v.'"';
-                }
-            }
-            $label .= (isset($data['value']) && $data['value']!='')?">".$data['value']."</label>":"";
-        }
-		return $label;
-	}
-/*************************************************
-* Submit Button
-*
-* @access	public
-* @param	mixed
-* @param	string
-* @param	string
-* @return	string
-**************************************************/
-		function form_submit($type='submit', $id = '', $value = '', $extra = ''){
-			$defaults = array('type' => $type, 'id' => $id, 'value' => $value);
-			return "<input ".$this->parse_attribs($defaults).$extra." />";
-		}
-/*************************************************
-* Parse the form attributes
-*
-* Helper function used by some of the form helpers
-*
-* @access	private
-* @param	array
-* @param	array
-* @return	string
-**************************************************/
-	function parse_attribs($defaults){
-		$att = '';
-		foreach ($defaults as $key => $val){
-			$att .= $key . '="' . $val . '" ';
-		}
-		return $att;
-	}
-
-/*************************************************
-* Form Prep
-*
-* Formats text so that it can be safely placed in a form field in the event it has HTML tags.
-*
-* @access	public
-* @param	string
-* @return	string
-**************************************************/
-		function form_prep($str = '', $field_name = ''){
-		static $prepped_fields = array();
-		// if the field name is an array we do this recursively
-		if (is_array($str)){
-			foreach ($str as $key => $val){
-				$str[$key] = $this->form_prep($val);
+ 	 function load_config($client_path=''){
+		if($client_path='') return;
+		global $conf;
+		$this->Config=array();
+		if(substr($client_path,-1)!=SEP)$client_path.=SEP;
+		$dir=FRAMEWORK.$client_path."config";
+			if(is_dir($dir)){
+				if($dh=opendir($dir)){
+					while(($file=readdir($dh)) !== FALSE){
+						try{
+							if(substr($file,-4)==EXT){
+								require_once($dir.SEP.$file);
+								if(is_array($conf)){
+										if(count($conf)>0) $this->_Config=array_merge($conf);
+								}
+							}
+							
+						}catch(Exception $e){
+							//do nothing
+						}
+					}
+				}
 			}
-			return $str;
-		}
-
-		if ($str === '') return '';
-
-		// we've already prepped a field with this name
-		// @todo need to figure out a way to namespace this so
-		// that we know the *exact* field and not just one with
-		// the same name
-		if (isset($prepped_fields[$field_name])){
-			return $str;
-		}
-		$str = htmlspecialchars($str);
-		// In case htmlspecialchars misses these.
-		$str = str_replace(array("'", '"'), array("&#39;", "&quot;"), $str);
-		if ($field_name != ''){
-			$prepped_fields[$field_name] = $field_name;
-		}
-		return $str;
-	}
-	function __destruct(){
-		
-	}
-
-}
-
-//EOF {File Location: )
+			if($this->Config['site_url'] ==''){
+				$this->Config['site_url']=(isset($_SERVER['HTTPS']) &&  $_SERVER['HTTPS'] == 'on' )? 'https://'.$_SERVER['SERVER_NAME']."/":'http://'.$_SERVER['SERVER_NAME']."/";
+			}
+ 	 }
+	 
+ }
