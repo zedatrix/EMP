@@ -1,24 +1,25 @@
 <?php  if ( ! defined('FRAMEWORK')) exit('No direct script access allowed');
 class Xml{
-	/*
-	 * To hold the actual XML Element
-	 */
-	protected $Xml=NULL;
-	/*
-	 * To hold XML Output
-	 */
-	 public $Output=NULL;
-	/**
-	 * Creates the Simple XML Object
-	 * @param
-	 * @xml xml file or xml string
-	 * @file true if file false if string
-	 */
-	 
-	 public $_Config=array();
+/*********************************************************
+* To hold the actual XML Element
+*********************************************************/
+protected $Xml=NULL;
+    
+/*********************************************************
+* To hold XML Output
+*********************************************************/
+public $Output=NULL;
+
+/*********************************************************
+* Creates the Simple XML Object
+* @param
+* @xml xml file or xml string
+* @file true if file false if string
+*********************************************************/
+public $_Config=array();
 
 	function __construct($xml=NULL, $file=TRUE){
-		if($xml===NULL) return;
+		if($xml===NULL) return 'NULL Object Given';
 		if($file===TRUE){
 			$this->Xml=simplexml_load_file($xml) or die("Error: Can not create object!");
 		}else{
@@ -30,11 +31,18 @@ class Xml{
 		}
 		$this->Output=$this->Xml;
 	}
-	   /** 
-    * returns array with values of given simpleXml object
-	*  @param $oXML Simple XML Object
-    *@return array
-    */ 
+
+/*********************************************************
+* @desc Function to return xml as string
+*********************************************************/
+    public function getXmlObj(){
+        return $this->Output;
+    }
+/*********************************************************
+* returns array with values of given simpleXml object
+*  @param $oXML Simple XML Object
+*@return array
+*********************************************************/
     function xml2Array(){
     	$oXML=$this->Xml;
         $values = ((array) $oXML);
