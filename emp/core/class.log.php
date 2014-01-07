@@ -1,12 +1,12 @@
 <?php  if ( ! defined('FRAMEWORK')) exit('No direct script access allowed');
 
-/***** Class to log errors *****
- * 		
- * @@author Eitan
- * 
- * @@Version 1.2.1
- * 
- *****                               *****/
+/*********************************************************
+* Class to log errors
+* @@author Eitan
+* 
+* @@Version 1.2.1
+*
+*********************************************************/
 
 class Log{	
 
