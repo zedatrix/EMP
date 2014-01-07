@@ -48,7 +48,7 @@
 								$class=ucfirst($class[1]);
 								if($class != 'Emp'){
                                     $tmpClass= new $class();
-									$this->$class = $tmpClass;
+									$this->$class=$tmpClass;
 									$this->$class->_Config=array_merge($this->_Config);
 								}
 							}
