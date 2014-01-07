@@ -1,10 +1,13 @@
-<?php  if ( ! defined('FRAMEWORK')) exit('No direct script access allowed');
- /*************************************************
-  * 	@name Global Procedural Functions For EMP Framework for php
-  *	@package		EMP
- * 	@author		We Excel Team
- **************************************************/
+<?php if ( ! defined('FRAMEWORK')) exit('No direct script access allowed');
+
+/*************************************************
+* 	@name Global Procedural Functions For EMP Framework for php
+*	@package		EMP
+* 	@author		ethan@myemp.us
+**************************************************/
+
 if( ! function_exists('remove_invisible_characters')){
+    
 	function remove_invisible_characters($str, $url_encoded = TRUE){
 		$non_displayables = array();
 		// every control character except newline, carriage return , and horizontal tab
@@ -23,11 +26,13 @@ if( ! function_exists('remove_invisible_characters')){
 
 		return $str;
 	}
+    
 }
-/**
-	 * Filter URI for malicious characters
-	 */
+/*************************************************
+* Filter URI for malicious characters
+**************************************************/
 if ( ! function_exists('filter_uri')){
+
 	function filter_uri($str, $perm_char=''){
 		if($str != '' && $perm_char != ''){
 			// preg_quote() in PHP 5.3 escapes -, so the str_replace() and addition of - to preg_quote() is to maintain backwards
@@ -41,4 +46,23 @@ if ( ! function_exists('filter_uri')){
 
 		return str_replace($bad, $good, $str);
 	}
+
+}
+
+/*************************************************
+* Create Unique ID
+*
+* @access public
+* @return int
+**************************************************/
+if ( ! function_exists('createUID')){
+    
+    function createUID() {
+        do {
+            $sUID = str_replace('.', '0', uniqid(rand(0, 999999999), true));
+        } while (strlen($sUID) != 32);
+        return $sUID;
+        //return strtoupper(substr(uniqid(rand(0, 9), false),0,14));
+    }
+
 }
