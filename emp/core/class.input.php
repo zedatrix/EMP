@@ -1,4 +1,4 @@
-<?php  if ( ! defined('FRAMEWORK')) exit('No direct script access allowed');
+<?php if ( ! defined('FRAMEWORK')) exit('No direct script access allowed');
 
 /*********************************************************
 *       Class for Manipulating Data Input For
@@ -14,13 +14,11 @@
 class Input{
 
     public $_Config;
-    function __construct(){
+    function __construct(){}
 
-    }
-
-    /*************************************************
-     * 	CLEANS DATA
-     **************************************************/
+/*************************************************
+* 	CLEANS DATA
+**************************************************/
 
     function clean(&$input, $type, $sh_arg=FALSE){
         //if the input is invalid then exist with empty string
@@ -85,6 +83,7 @@ class Input{
                         }
                         //otherwise clean it with appropriate cleansers
                         $v=mysql_real_escape_string($v);
+
                     }
                     //otherwise if its a string then just cleans with appropriate cleansers
                 }else{
@@ -164,9 +163,9 @@ class Input{
         return $input;
     }
 
-    /*************************************************
-     * 	JSON DECODER
-     **************************************************/
+/*************************************************
+* 	JSON DECODER
+**************************************************/
     function get_json(&$POST){
         //if there are backslashes then remove them
         $POST=str_replace("\\","",$POST);
@@ -194,9 +193,9 @@ class Input{
 
     }
 
-    /*************************************************
-     * 	CONVERTS MULTI ARRAY TO SINGLE ARRAY
-     **************************************************/
+/*************************************************
+* 	CONVERTS MULTI ARRAY TO SINGLE ARRAY
+**************************************************/
     function single_array(&$array){
         //check to make sure the passed argument is an array
         if( ! is_array($array) && ! is_object($array)) return 'Value not array.';
@@ -218,5 +217,32 @@ class Input{
         }
         //return the array
         return $array;
+    }
+
+/*************************************************
+* CONVERTS ARRAYS TO OBJECTS
+**************************************************/
+    function array_to_obj(&$array){
+        //check to make sure the passed argument is an array
+        if( ! is_array($array) && ! is_object($array)) return 'Value not array.';
+        //if the array is only length 1, this means its the single dimension we want
+        if(count($array)==1){
+            //reset the index of the array to the begining
+            reset($array);
+            $obj = new stdClass();
+            for($i=0;$i<count($array);$i++){
+                //get the key of the array
+                $key=key($array);
+                $obj->$key=$array[$key];
+                next($array);
+            }
+        }elseif(count($array)>1){
+            //we loop through the array
+            foreach($array as $arr){
+                //make the array come back until its done
+                $this->array_to_obj($arr);
+            }
+        }
+        return $array=$obj;
     }
 }
