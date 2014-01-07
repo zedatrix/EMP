@@ -1,22 +1,17 @@
 <?php  if ( ! defined('FRAMEWORK')) exit('No direct script access allowed');
 
 class Html {
-	
 	public $_Config=array();
-
-	function __construct(){
-	}
-	
-	
-/**
- * Text Input Field
- *
- * @access	public
- * @param	mixed
- * @param	string
- * @param	string
- * @return	string
- */
+	function __construct(){}
+/*************************************************
+* Text Input Field
+*
+* @access	public
+* @param	mixed
+* @param	string
+* @param	string
+* @return	string
+**************************************************/
 	function input_box($data = '', $value = '', $extra = ''){
 		if(is_array($data)){
 			if(strlen($data['id'])>0) $defaults = array('type'=>'text','id' => $data['id'], 'name'=> $data['id'], 'value'=>$data['value']);
@@ -25,25 +20,25 @@ class Html {
 		}
 		return "<input ".$this->parse_attribs($defaults).$extra." />";
 	}
-	
-	/**
-	 * alias for input_box
-	 */
+
+/*************************************************
+* alias for input_box
+**************************************************/
 	function text_box($data = '', $value = '', $extra = ''){
 		return $this->input_box($data, $value, $extra);
 	}
 
-    /**
-     * Hidden Input Field
-     *
-     * Generates hidden fields.  You can pass a simple key/value string or an associative
-     * array with multiple values.
-     *
-     * @access	public
-     * @param	mixed
-     * @param	string
-     * @return	string
-     */
+/*************************************************
+* Hidden Input Field
+*
+* Generates hidden fields.  You can pass a simple key/value string or an associative
+* array with multiple values.
+*
+* @access	public
+* @param	mixed
+* @param	string
+* @return	string
+**************************************************/
     function hidden_box($data = '', $value = '', $extra = ''){
         if(is_array($data)){
             if(strlen($data['id'])>0) $defaults = array('type'=>'hidden','id' => $data['id'], 'name'=> $data['id'], 'value'=>$data['value']);
@@ -52,16 +47,16 @@ class Html {
         }
         return "<input ".$this->parse_attribs($defaults).$extra." />";
     }
-	
-	/**
-	 * Textarea field
-	 *
-	 * @access	public
-	 * @param	mixed
-	 * @param	string
-	 * @param	string
-	 * @return	string
-	 */
+
+/*************************************************
+* Textarea field
+*
+* @access	public
+* @param	mixed
+* @param	string
+* @param	string
+* @return	string
+**************************************************/
 		function textarea_box($data = '', $value = '', $extra = ''){
 		if(is_array($data)){
 			if(strlen($data['id'])>0) $defaults = array('id' => $data['id'], 'name'=> $data['id'],'cols' => '30', 'rows' => '5');
@@ -77,15 +72,15 @@ class Html {
 		$name = (is_array($data)) ? $data['id'] : $data;
 		return "<textarea ".$this->parse_attribs($defaults).$extra.">".$this->form_prep($val, $name)."</textarea>";
 	}
-	/**
-	 * Form Label Tag
-	 *
-	 * @access	public
-	 * @param	string	The text to appear onscreen
-	 * @param	string	The id the label applies to
-	 * @param	string	Additional attributes
-	 * @return	string
-	 */
+/*************************************************
+* Form Label Tag
+*
+* @access	public
+* @param	string	The text to appear onscreen
+* @param	string	The id the label applies to
+* @param	string	Additional attributes
+* @return	string
+**************************************************/
 		function label($data = '', $value ='',$attributes = array()){
         $label = '<label';
         if( ! is_array($data)){
@@ -111,29 +106,29 @@ class Html {
         }
 		return $label;
 	}
-	/**
-	 * Submit Button
-	 *
-	 * @access	public
-	 * @param	mixed
-	 * @param	string
-	 * @param	string
-	 * @return	string
-	 */
+/*************************************************
+* Submit Button
+*
+* @access	public
+* @param	mixed
+* @param	string
+* @param	string
+* @return	string
+**************************************************/
 		function form_submit($type='submit', $id = '', $value = '', $extra = ''){
 			$defaults = array('type' => $type, 'id' => $id, 'value' => $value);
 			return "<input ".$this->parse_attribs($defaults).$extra." />";
 		}
-	/**
-	 * Parse the form attributes
-	 *
-	 * Helper function used by some of the form helpers
-	 *
-	 * @access	private
-	 * @param	array
-	 * @param	array
-	 * @return	string
-	 */
+/*************************************************
+* Parse the form attributes
+*
+* Helper function used by some of the form helpers
+*
+* @access	private
+* @param	array
+* @param	array
+* @return	string
+**************************************************/
 	function parse_attribs($defaults){
 		$att = '';
 		foreach ($defaults as $key => $val){
@@ -141,16 +136,16 @@ class Html {
 		}
 		return $att;
 	}
-	
-	/**
-	 * Form Prep
-	 *
-	 * Formats text so that it can be safely placed in a form field in the event it has HTML tags.
-	 *
-	 * @access	public
-	 * @param	string
-	 * @return	string
-	 */
+
+/*************************************************
+* Form Prep
+*
+* Formats text so that it can be safely placed in a form field in the event it has HTML tags.
+*
+* @access	public
+* @param	string
+* @return	string
+**************************************************/
 		function form_prep($str = '', $field_name = ''){
 		static $prepped_fields = array();
 		// if the field name is an array we do this recursively
