@@ -1,55 +1,56 @@
-<?php  if ( ! defined('FRAMEWORK')) exit('No direct script access allowed');
+<?php if ( ! defined('FRAMEWORK')) exit('No direct script access allowed');
 
 class File {
 
-	/*
-	 *  File Name
-	 * @access: Public
-	 * @var Str
-	 */
-	public $filename;
-	/*
-	 *  File Path
-	 * @access: Public
-	 * @var Str
-	 */
-	public $path;
-	/*
-	 *  File Full Name
-	 * @access: Public
-	 * @var Str
-	 */
-	public $full_filename;
-	
-	/*
-	 *  File Name With Path
-	 * @access: Public
-	 * @var Str
-	 */
-	public $full_path;
-	
-	/*
-	 *  File To Handle
-	 * @access: Public
-	 * @var Str/Res
-	 */
-	public $fileHandle;
+/*************************************************
+*  File Name
+* @access: Public
+* @var Str
+**************************************************/
+public $filename;
+/*************************************************
+*  File Path
+* @access: Public
+* @var Str
+**************************************************/
+public $path;
+/*************************************************
+*  File Full Name
+* @access: Public
+* @var Str
+**************************************************/
+public $full_filename;
 
-	/*
-	 *  File Extension
-	 * @access: Public
-	 * @var Str
-	 */
-	public $ext;
+/*************************************************
+*  File Name With Path
+* @access: Public
+* @var Str
+**************************************************/
+public $full_path;
+
+/*************************************************
+*  File To Handle
+* @access: Public
+* @var Str/Res
+**************************************************/
+public $fileHandle;
+
+/*************************************************
+*  File Extension
+* @access: Public
+ * @var Str
+**************************************************/
+public $ext;
+
+/*************************************************
+*  File Mime Type
+* @access: Public
+* @var Str
+**************************************************/
+public $mime;
 	
-	/*
-	 *  File Mime Type
-	 * @access: Public
-	 * @var Str
-	 */
-	public $mime;
-	
-	public $_Config=array();
+public $_Config=array();
+
 	function __construct($_file=NULL){
 		if($_file!==NULL){
 			$this->fileHandle = $_file;
@@ -78,85 +79,85 @@ class File {
 		$this->filename=$tmp_info['filename'];
 		$this->full_path=$this->path.MY_SEP.$this->full_filename;
 	}
-	/**
-	 * Sets file permissions
-	 * @param str $mode permission to set to
-	 * @return bool $set TRUE if successful otherwise FALSE
-	 * @desc Sets file permissions
-	 */
+/*************************************************
+* Sets file permissions
+* @param str $mode permission to set to
+* @return bool $set TRUE if successful otherwise FALSE
+* @desc Sets file permissions
+**************************************************/
 	function set_perm($path='', $mode=0777){
 		if($path=='') $path=$this->full_path;
 		return chmod($path, $mode);
 	}
-	/**
-    * Returns the filesize in bytes
-    * @return int $filesize The filesize in bytes
-    * @desc Returns the filesize in bytes
-    */
+/*************************************************
+* Returns the filesize in bytes
+* @return int $filesize The filesize in bytes
+* @desc Returns the filesize in bytes
+**************************************************/
     function get_size(){
         return filesize($this->full_path);
     }
-	/**
-    * Returns the timestamp of the last change
-    * @return timestamp $timestamp The time of the last change as timestamp
-    * @desc Returns the timestamp of the last change
-    */
+/*************************************************
+* Returns the timestamp of the last change
+* @return timestamp $timestamp The time of the last change as timestamp
+* @desc Returns the timestamp of the last change
+**************************************************/
     function get_time(){
         return fileatime($this->full_path);
-    } 
-	/**
-    * Returns user id of the file
-    * @return string $user_id The user id of the file
-    * @desc Returns user id of the file
-    */
+    }
+/*************************************************
+* Returns user id of the file
+* @return string $user_id The user id of the file
+* @desc Returns user id of the file
+**************************************************/
     function get_owner_id(){
         return fileowner($this->full_path);
-    } 
-	/**
-    * Returns group id of the file
-    * @return string $group_id The group id of the file
-    * @desc Returns group id of the file
-    */
+    }
+/*************************************************
+* Returns group id of the file
+* @return string $group_id The group id of the file
+* @desc Returns group id of the file
+**************************************************/
     function get_group_id(){
         return filegroup($this->full_path);
     }
-	/**
-    * Deletes a file
-    * @return boolean $deleted Returns TRUE if file could be deleted, FALSE if not
-    * @desc Deletes a file
-    */
+/*************************************************
+* Deletes a file
+* @return boolean $deleted Returns TRUE if file could be deleted, FALSE if not
+* @desc Deletes a file
+**************************************************/
 	function delete(){
         if(file_exists($this->full_path) && unlink($this->full_path)){
             return TRUE;
         }
         return FALSE;
-    } 
-	/**
-	 * Creates a folder/directory
-	 * @param $path path to create
-	 * @param $mode mode to set to, default is 0777
-	 * @param $R Allows the creation of nested directories specified in the pathname. Defaults to FALSE. 
-	 * @return returns TRUE on success FALSE on failure
-	 * @desc Creates a folder/directory
-	 */
+    }
+/*************************************************
+* Creates a folder/directory
+* @param $path path to create
+* @param $mode mode to set to, default is 0777
+* @param $R Allows the creation of nested directories specified in the pathname. Defaults to FALSE.
+* @return returns TRUE on success FALSE on failure
+* @desc Creates a folder/directory
+**************************************************/
 	function create_dir($path, $mode=0777, $R=FALSE){
 		if( ! is_dir($path)) return mkdir($path, $mode, $R);
 	}
-	/**
-	 * Deletes a folder/directory
-	 * @param $path path to delete
-	 * @return returns TRUE on success FALSE on failure
-	 * @desc Deletes a folder/directory
-	 */
+/*************************************************
+* Deletes a folder/directory
+* @param $path path to delete
+* @return returns TRUE on success FALSE on failure
+* @desc Deletes a folder/directory
+**************************************************/
 	function delete_dir($path){
 		return rmdir($path);
 	}
-	/**
-    * Moves a file to the given destination
-    * @param string $destination The new file destination
-    * @return boolean $moved Returns TRUE if file could be moved, FALSE if not
-    * @desc Moves a file to the given destination
-    */
+/*************************************************
+* Moves a file to the given destination
+* @param string $destination The new file destination
+* @return boolean $moved Returns TRUE if file could be moved, FALSE if not
+* @desc Moves a file to the given destination
+**************************************************/
 	function move($destination){
 		if(strlen($destination)>0){
 	        if(rename($this->full_path, $destination)){
@@ -169,13 +170,13 @@ class File {
 			die("Destination must have at least one char");
 			return FALSE;
 		}
-    } 
-	/**
-    * Copies a file to the given destination
-    * @param string $destination The new file destination
-    * @return boolean/str $copied Returns path copied to if file could be copied, FALSE if not
-    * @desc Copies a file to the given destination
-    */
+    }
+/*************************************************
+* Copies a file to the given destination
+* @param string $destination The new file destination
+* @return boolean/str $copied Returns path copied to if file could be copied, FALSE if not
+* @desc Copies a file to the given destination
+**************************************************/
     function copy($destination){
         if(strlen($destination)>0){
             if(copy($this->full_path,$destination)){
