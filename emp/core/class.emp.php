@@ -1,340 +1,182 @@
-<?php if ( ! defined('FRAMEWORK')) exit('No direct script access allowed');
+<?php  if ( ! defined('FRAMEWORK')) exit('No direct script access allowed');
 
-class File {
-
+class Html {
+	public $_Config=array();
+	function __construct(){}
 /*************************************************
-*  File Name
-* @access: Public
-* @var Str
+* Text Input Field
+*
+* @access	public
+* @param	mixed
+* @param	string
+* @param	string
+* @return	string
 **************************************************/
-public $filename;
-/*************************************************
-*  File Path
-* @access: Public
-* @var Str
-**************************************************/
-public $path;
-/*************************************************
-*  File Full Name
-* @access: Public
-* @var Str
-**************************************************/
-public $full_filename;
-
-/*************************************************
-*  File Name With Path
-* @access: Public
-* @var Str
-**************************************************/
-public $full_path;
-
-/*************************************************
-*  File To Handle
-* @access: Public
-* @var Str/Res
-**************************************************/
-public $fileHandle;
-
-/*************************************************
-*  File Extension
-* @access: Public
- * @var Str
-**************************************************/
-public $ext;
-
-/*************************************************
-*  File Mime Type
-* @access: Public
-* @var Str
-**************************************************/
-public $mime;
-	
-public $_Config=array();
-
-	function __construct($_file=NULL){
-		if($_file!==NULL){
-			$this->fileHandle = $_file;
-			$this->get_info();
-			$this->get_mime();
-		}
-
-	}
-	function set_handler($_file){
-		$this->fileHandle = $_file;
-		$this->get_info();
-		$this->get_mime();
-	}
-	function get_info(){
-		if( ! defined('MY_SEP')){
-			if( PHP_OS == 'WINNT' && ! strpos ( $_SERVER['DOCUMENT_ROOT'], '/' )){
-				define('MY_SEP',"\\");
-			}else{
-				define('MY_SEP', "/");
-			}
-		}
-		$tmp_info=pathinfo($this->fileHandle);
-		$this->path=$tmp_info['dirname'];
-		$this->full_filename=$tmp_info['basename'];
-		$this->ext=$tmp_info['extension'];
-		$this->filename=$tmp_info['filename'];
-		$this->full_path=$this->path.MY_SEP.$this->full_filename;
-	}
-/*************************************************
-* Sets file permissions
-* @param str $mode permission to set to
-* @return bool $set TRUE if successful otherwise FALSE
-* @desc Sets file permissions
-**************************************************/
-	function set_perm($path='', $mode=0777){
-		if($path=='') $path=$this->full_path;
-		return chmod($path, $mode);
-	}
-/*************************************************
-* Returns the filesize in bytes
-* @return int $filesize The filesize in bytes
-* @desc Returns the filesize in bytes
-**************************************************/
-    function get_size(){
-        return filesize($this->full_path);
-    }
-/*************************************************
-* Returns the timestamp of the last change
-* @return timestamp $timestamp The time of the last change as timestamp
-* @desc Returns the timestamp of the last change
-**************************************************/
-    function get_time(){
-        return fileatime($this->full_path);
-    }
-/*************************************************
-* Returns user id of the file
-* @return string $user_id The user id of the file
-* @desc Returns user id of the file
-**************************************************/
-    function get_owner_id(){
-        return fileowner($this->full_path);
-    }
-/*************************************************
-* Returns group id of the file
-* @return string $group_id The group id of the file
-* @desc Returns group id of the file
-**************************************************/
-    function get_group_id(){
-        return filegroup($this->full_path);
-    }
-/*************************************************
-* Deletes a file
-* @return boolean $deleted Returns TRUE if file could be deleted, FALSE if not
-* @desc Deletes a file
-**************************************************/
-	function delete(){
-        if(file_exists($this->full_path) && unlink($this->full_path)){
-            return TRUE;
-        }
-        return FALSE;
-    }
-/*************************************************
-* Creates a folder/directory
-* @param $path path to create
-* @param $mode mode to set to, default is 0777
-* @param $R Allows the creation of nested directories specified in the pathname. Defaults to FALSE.
-* @return returns TRUE on success FALSE on failure
-* @desc Creates a folder/directory
-**************************************************/
-	function create_dir($path, $mode=0777, $R=FALSE){
-		if( ! is_dir($path)) return mkdir($path, $mode, $R);
-	}
-/*************************************************
-* Deletes a folder/directory
-* @param $path path to delete
-* @return returns TRUE on success FALSE on failure
-* @desc Deletes a folder/directory
-**************************************************/
-	function delete_dir($path){
-		return rmdir($path);
-	}
-/*************************************************
-* Moves a file to the given destination
-* @param string $destination The new file destination
-* @return boolean $moved Returns TRUE if file could be moved, FALSE if not
-* @desc Moves a file to the given destination
-**************************************************/
-	function move($destination){
-		if(strlen($destination)>0){
-	        if(rename($this->full_path, $destination)){
-	            return TRUE;
-	        }else{
-	        	die("Couldn't copy file to destination, please check permissions");
-				return FALSE;
-	        }
+	function input_box($data = '', $value = '', $extra = ''){
+		if(is_array($data)){
+			if(strlen($data['id'])>0) $defaults = array('type'=>'text','id' => $data['id'], 'name'=> $data['id'], 'value'=>$data['value']);
 		}else{
-			die("Destination must have at least one char");
-			return FALSE;
+			$defaults = array('type' => 'text', 'id' => (( ! is_array($data)) ? $data : ''),'name' => (( ! is_array($data)) ? $data : ''), 'value' => $this->form_prep($value));
 		}
-    }
+		return "<input ".$this->parse_attribs($defaults).$extra." />";
+	}
+
 /*************************************************
-* Copies a file to the given destination
-* @param string $destination The new file destination
-* @return boolean/str $copied Returns path copied to if file could be copied, FALSE if not
-* @desc Copies a file to the given destination
+* alias for input_box
 **************************************************/
-    function copy($destination){
-        if(strlen($destination)>0){
-            if(copy($this->full_path,$destination)){
-                return $destination;
-            }else{
-                die("Couldn't copy file to destination, please check permissions");
-                return FALSE;
-            }
+	function text_box($data = '', $value = '', $extra = ''){
+		return $this->input_box($data, $value, $extra);
+	}
+
+/*************************************************
+* Hidden Input Field
+*
+* Generates hidden fields.  You can pass a simple key/value string or an associative
+* array with multiple values.
+*
+* @access	public
+* @param	mixed
+* @param	string
+* @return	string
+**************************************************/
+    function hidden_box($data = '', $value = '', $extra = ''){
+        if(is_array($data)){
+            if(strlen($data['id'])>0) $defaults = array('type'=>'hidden','id' => $data['id'], 'name'=> $data['id'], 'value'=>$data['value']);
         }else{
-            die("Destination must have at least one char");
+            $defaults = array('type' => 'hidden', 'id' => (( ! is_array($data)) ? $data : ''),'name' => (( ! is_array($data)) ? $data : ''), 'value' => $this->form_prep($value));
         }
+        return "<input ".$this->parse_attribs($defaults).$extra." />";
     }
-	function get_mime(){
-		$_mimetypes = array(
-         ".ez" => "application/andrew-inset",
-         ".hqx" => "application/mac-binhex40",
-         ".cpt" => "application/mac-compactpro",
-         ".doc" => "application/msword",
-         ".bin" => "application/octet-stream",
-         ".dms" => "application/octet-stream",
-         ".lha" => "application/octet-stream",
-         ".lzh" => "application/octet-stream",
-         ".exe" => "application/octet-stream",
-         ".class" => "application/octet-stream",
-         ".so" => "application/octet-stream",
-         ".dll" => "application/octet-stream",
-         ".oda" => "application/oda",
-         ".pdf" => "application/pdf",
-         ".ai" => "application/postscript",
-         ".eps" => "application/postscript",
-         ".ps" => "application/postscript",
-         ".smi" => "application/smil",
-         ".smil" => "application/smil",
-         ".wbxml" => "application/vnd.wap.wbxml",
-         ".wmlc" => "application/vnd.wap.wmlc",
-         ".wmlsc" => "application/vnd.wap.wmlscriptc",
-         ".bcpio" => "application/x-bcpio",
-         ".vcd" => "application/x-cdlink",
-         ".pgn" => "application/x-chess-pgn",
-         ".cpio" => "application/x-cpio",
-         ".csh" => "application/x-csh",
-         ".dcr" => "application/x-director",
-         ".dir" => "application/x-director",
-         ".dxr" => "application/x-director",
-         ".dvi" => "application/x-dvi",
-         ".spl" => "application/x-futuresplash",
-         ".gtar" => "application/x-gtar",
-         ".hdf" => "application/x-hdf",
-         ".js" => "application/x-javascript",
-         ".skp" => "application/x-koan",
-         ".skd" => "application/x-koan",
-         ".skt" => "application/x-koan",
-         ".skm" => "application/x-koan",
-         ".latex" => "application/x-latex",
-         ".nc" => "application/x-netcdf",
-         ".cdf" => "application/x-netcdf",
-         ".sh" => "application/x-sh",
-         ".shar" => "application/x-shar",
-         ".swf" => "application/x-shockwave-flash",
-         ".sit" => "application/x-stuffit",
-         ".sv4cpio" => "application/x-sv4cpio",
-         ".sv4crc" => "application/x-sv4crc",
-         ".tar" => "application/x-tar",
-         ".tcl" => "application/x-tcl",
-         ".tex" => "application/x-tex",
-         ".texinfo" => "application/x-texinfo",
-         ".texi" => "application/x-texinfo",
-         ".t" => "application/x-troff",
-         ".tr" => "application/x-troff",
-         ".roff" => "application/x-troff",
-         ".man" => "application/x-troff-man",
-         ".me" => "application/x-troff-me",
-         ".ms" => "application/x-troff-ms",
-         ".ustar" => "application/x-ustar",
-         ".src" => "application/x-wais-source",
-         ".xhtml" => "application/xhtml+xml",
-         ".xht" => "application/xhtml+xml",
-         ".zip" => "application/zip",
-         ".au" => "audio/basic",
-         ".snd" => "audio/basic",
-         ".mid" => "audio/midi",
-         ".midi" => "audio/midi",
-         ".kar" => "audio/midi",
-         ".mpga" => "audio/mpeg",
-         ".mp2" => "audio/mpeg",
-         ".mp3" => "audio/mpeg",
-         ".aif" => "audio/x-aiff",
-         ".aiff" => "audio/x-aiff",
-         ".aifc" => "audio/x-aiff",
-         ".m3u" => "audio/x-mpegurl",
-         ".ram" => "audio/x-pn-realaudio",
-         ".rm" => "audio/x-pn-realaudio",
-         ".rpm" => "audio/x-pn-realaudio-plugin",
-         ".ra" => "audio/x-realaudio",
-         ".wav" => "audio/x-wav",
-         ".pdb" => "chemical/x-pdb",
-         ".xyz" => "chemical/x-xyz",
-         ".bmp" => "image/bmp",
-         ".gif" => "image/gif",
-         ".ief" => "image/ief",
-         ".jpeg" => "image/jpeg",
-         ".jpg" => "image/jpeg",
-         ".jpe" => "image/jpeg",
-         ".png" => "image/png",
-         ".tiff" => "image/tiff",
-         ".tif" => "image/tif",
-         ".djvu" => "image/vnd.djvu",
-         ".djv" => "image/vnd.djvu",
-         ".wbmp" => "image/vnd.wap.wbmp",
-         ".ras" => "image/x-cmu-raster",
-         ".pnm" => "image/x-portable-anymap",
-         ".pbm" => "image/x-portable-bitmap",
-         ".pgm" => "image/x-portable-graymap",
-         ".ppm" => "image/x-portable-pixmap",
-         ".rgb" => "image/x-rgb",
-         ".xbm" => "image/x-xbitmap",
-         ".xpm" => "image/x-xpixmap",
-         ".xwd" => "image/x-windowdump",
-         ".igs" => "model/iges",
-         ".iges" => "model/iges",
-         ".msh" => "model/mesh",
-         ".mesh" => "model/mesh",
-         ".silo" => "model/mesh",
-         ".wrl" => "model/vrml",
-         ".vrml" => "model/vrml",
-         ".css" => "text/css",
-         ".html" => "text/html",
-         ".htm" => "text/html",
-         ".asc" => "text/plain",
-         ".txt" => "text/plain",
-         ".rtx" => "text/richtext",
-         ".rtf" => "text/rtf",
-         ".sgml" => "text/sgml",
-         ".sgm" => "text/sgml",
-         ".tsv" => "text/tab-seperated-values",
-         ".wml" => "text/vnd.wap.wml",
-         ".wmls" => "text/vnd.wap.wmlscript",
-         ".etx" => "text/x-setext",
-         ".xml" => "text/xml",
-         ".xsl" => "text/xml",
-         ".mpeg" => "video/mpeg",
-         ".mpg" => "video/mpeg",
-         ".mpe" => "video/mpeg",
-         ".qt" => "video/quicktime",
-         ".mov" => "video/quicktime",
-         ".mxu" => "video/vnd.mpegurl",
-         ".avi" => "video/x-msvideo",
-         ".movie" => "video/x-sgi-movie",
-         ".ice" => "x-conference-xcooltalk"
-		);
-		// return mime type for extension
-		if(isset($_mimetypes[$this->ext])){
-			$this->mime = $_mimetypes[$this->ext];
-		// if the extension wasn't found return octet-stream         
+
+/*************************************************
+* Textarea field
+*
+* @access	public
+* @param	mixed
+* @param	string
+* @param	string
+* @return	string
+**************************************************/
+		function textarea_box($data = '', $value = '', $extra = ''){
+		if(is_array($data)){
+			if(strlen($data['id'])>0) $defaults = array('id' => $data['id'], 'name'=> $data['id'],'cols' => '30', 'rows' => '5');
 		}else{
-			$this->mime = 'application/octet-stream';
-		}	
+			$defaults = array('id' => (( ! is_array($data)) ? $data : ''),'name'=> (( ! is_array($data)) ? $data : ''), 'cols' => '30', 'rows' => '5');
+		}
+		if( ! is_array($data) OR ! isset($data['value']))	{
+			$val = $value;
+		}else	{
+			$val = $data['value'];
+			unset($data['value']); // textareas don't use the value attribute
+		}
+		$name = (is_array($data)) ? $data['id'] : $data;
+		return "<textarea ".$this->parse_attribs($defaults).$extra.">".$this->form_prep($val, $name)."</textarea>";
 	}
+/*************************************************
+* Form Label Tag
+*
+* @access	public
+* @param	string	The text to appear onscreen
+* @param	string	The id the label applies to
+* @param	string	Additional attributes
+* @return	string
+**************************************************/
+		function label($data = '', $value ='',$attributes = array()){
+        $label = '<label';
+        if( ! is_array($data)){
+            if($data != '') $label .= " for=\"$data\"";
+            if(is_array($attributes) AND count($attributes) > 0){
+                foreach($attributes as $key => $val){
+                    $label .= ' '.$key.'="'.$val.'"';
+                }
+            }
+            $label .= ">$value</label>";
+        }elseif(is_array($data)){
+            $label .= (isset($data['id']) && $data['id']!='')?" for='".$data['id']."'":"";
+            if(is_array($attributes) AND count($attributes) > 0){
+                foreach($attributes as $key => $val){
+                    $label .= ' '.$key.'="'.$val.'"';
+                }
+            }elseif(isset($data['attribs']) && count($data['attribs'])>0){
+                foreach($data['attribs'] as $k => $v){
+                    $label .= ' '.$k.'="'.$v.'"';
+                }
+            }
+            $label .= (isset($data['value']) && $data['value']!='')?">".$data['value']."</label>":"";
+        }
+		return $label;
+	}
+/*************************************************
+* Submit Button
+*
+* @access	public
+* @param	mixed
+* @param	string
+* @param	string
+* @return	string
+**************************************************/
+		function form_submit($type='submit', $id = '', $value = '', $extra = ''){
+			$defaults = array('type' => $type, 'id' => $id, 'value' => $value);
+			return "<input ".$this->parse_attribs($defaults).$extra." />";
+		}
+/*************************************************
+* Parse the form attributes
+*
+* Helper function used by some of the form helpers
+*
+* @access	private
+* @param	array
+* @param	array
+* @return	string
+**************************************************/
+	function parse_attribs($defaults){
+		$att = '';
+		foreach ($defaults as $key => $val){
+			$att .= $key . '="' . $val . '" ';
+		}
+		return $att;
+	}
+
+/*************************************************
+* Form Prep
+*
+* Formats text so that it can be safely placed in a form field in the event it has HTML tags.
+*
+* @access	public
+* @param	string
+* @return	string
+**************************************************/
+		function form_prep($str = '', $field_name = ''){
+		static $prepped_fields = array();
+		// if the field name is an array we do this recursively
+		if (is_array($str)){
+			foreach ($str as $key => $val){
+				$str[$key] = $this->form_prep($val);
+			}
+			return $str;
+		}
+
+		if ($str === '') return '';
+
+		// we've already prepped a field with this name
+		// @todo need to figure out a way to namespace this so
+		// that we know the *exact* field and not just one with
+		// the same name
+		if (isset($prepped_fields[$field_name])){
+			return $str;
+		}
+		$str = htmlspecialchars($str);
+		// In case htmlspecialchars misses these.
+		$str = str_replace(array("'", '"'), array("&#39;", "&quot;"), $str);
+		if ($field_name != ''){
+			$prepped_fields[$field_name] = $field_name;
+		}
+		return $str;
+	}
+	function __destruct(){
+		
+	}
+
 }
 
 //EOF {File Location: )
