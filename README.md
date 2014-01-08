@@ -25,12 +25,20 @@ Accessing EMP From Within ProcessMaker Triggers
 To access the EMP framework from within a trigger, you could do something like this to make it generic and easily exportable.
 
 //Get the server type and domain name
+
 $server = ( isset ( $_SERVER['HTTPS'] ) &&  $_SERVER['HTTPS'] == 'on' )?'https://' . $_SERVER['SERVER_NAME'] . "/" : 'http://' . $_SERVER['SERVER_NAME'] . "/";
+
 //Concat the server type and domain name with the actual request
+
 $_SERVER['REQUEST_URI'] = $server."emp/user-name/controller-name/function-name/var1/var3/var4/etc";
-//Check to make sure that the framework has not yet been included somewhere else. This was needed by us because we modified the source code and added references to the EMP framework within
+
+//Check to make sure that the framework has not yet been included somewhere else. This was needed by us because we 
+modified the source code and added references to the EMP framework within
+
 if ( ! function_exists( 'empGo' ) ) include( PATH_HTML.'emp/emp.php' );
+
 //To return a result from your controller to the trigger
+
 $result = empGo();
 
 AJAX
